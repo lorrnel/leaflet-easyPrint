@@ -19,7 +19,8 @@ L.Control.EasyPrint = L.Control.extend({
       Current: 'Current Size',
       A4Landscape: 'A4 Landscape',
       A4Portrait: 'A4 Portrait'
-    }
+    },
+    handleImage: null,
   },
 
   onAdd: function () { 
@@ -191,7 +192,10 @@ L.Control.EasyPrint = L.Control.extend({
       })
       .then(function (dataUrl) {
           var blob = plugin._dataURItoBlob(dataUrl);
-          if (plugin.options.exportOnly) {
+          if ( typeof plugin.options.handleImage === 'function') {
+            plugin.options.handleImage(blob);
+          }
+          else if (plugin.options.exportOnly) {
             fileSaver.saveAs(blob, plugin.options.filename + '.png');
           } else {
             plugin._sendToBrowserPrint(dataUrl, plugin.orientation);
