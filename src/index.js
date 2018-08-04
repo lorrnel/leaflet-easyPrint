@@ -21,6 +21,7 @@ L.Control.EasyPrint = L.Control.extend({
       A4Portrait: 'A4 Portrait'
     },
     handleImage: null,
+    shouldImageSnap: true,
   },
 
   onAdd: function () { 
@@ -79,48 +80,57 @@ L.Control.EasyPrint = L.Control.extend({
   },
 
   printMap: function (event, filename) {
-    if (filename) {
-      this.options.filename = filename
+    let shouldContinue = true;
+    if (typeof this.options.shouldImageSnap === 'function') {
+      shouldContinue = this.options.shouldImageSnap();
+    } else {
+      shouldContinue = this.options.shouldImageSnap;
     }
-    if (!this.options.exportOnly) {
-      this._page = window.open("", "_blank", 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=10, top=10, width=200, height=250, visible=none');
-      this._page.document.write(this._createSpinner(this.options.customWindowTitle, this.options.customSpinnerClass, this.options.spinnerBgCOlor));
+
+    if (shouldContinue) {
+      if (filename) {
+        this.options.filename = filename
+      }
+      if (!this.options.exportOnly) {
+        this._page = window.open("", "_blank", 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=10, top=10, width=200, height=250, visible=none');
+        this._page.document.write(this._createSpinner(this.options.customWindowTitle, this.options.customSpinnerClass, this.options.spinnerBgCOlor));
+      }
+      this.originalState = {
+        mapWidth: this.mapContainer.style.width,
+        widthWasAuto: false,
+        widthWasPercentage: false,
+        mapHeight: this.mapContainer.style.height,
+        zoom: this._map.getZoom(),
+        center: this._map.getCenter()
+      };
+      if (this.originalState.mapWidth === 'auto') {
+        this.originalState.mapWidth = this._map.getSize().x  + 'px'
+        this.originalState.widthWasAuto = true
+      } else if (this.originalState.mapWidth.includes('%')) {
+        this.originalState.percentageWidth = this.originalState.mapWidth
+        this.originalState.widthWasPercentage = true
+        this.originalState.mapWidth = this._map.getSize().x  + 'px'
+      }
+      this._map.fire("easyPrint-start", { event: event });
+      if (!this.options.hidden) {
+        this._togglePageSizeButtons({type: null});
+      }
+      if (this.options.hideControlContainer) {
+        this._toggleControls();    
+      }
+      if (this.options.hideClasses) {
+        this._toggleClasses(this.options.hideClasses);
+      }
+      var sizeMode = typeof event !== 'string' ? event.target.className : event;
+      if (sizeMode === 'CurrentSize') {
+        return this._printOpertion(sizeMode);
+      }
+      this.outerContainer = this._createOuterContainer(this.mapContainer)
+      if (this.originalState.widthWasAuto) {
+        this.outerContainer.style.width = this.originalState.mapWidth
+      }
+      this._createImagePlaceholder(sizeMode)
     }
-    this.originalState = {
-      mapWidth: this.mapContainer.style.width,
-      widthWasAuto: false,
-      widthWasPercentage: false,
-      mapHeight: this.mapContainer.style.height,
-      zoom: this._map.getZoom(),
-      center: this._map.getCenter()
-    };
-    if (this.originalState.mapWidth === 'auto') {
-      this.originalState.mapWidth = this._map.getSize().x  + 'px'
-      this.originalState.widthWasAuto = true
-    } else if (this.originalState.mapWidth.includes('%')) {
-      this.originalState.percentageWidth = this.originalState.mapWidth
-      this.originalState.widthWasPercentage = true
-      this.originalState.mapWidth = this._map.getSize().x  + 'px'
-    }
-    this._map.fire("easyPrint-start", { event: event });
-    if (!this.options.hidden) {
-      this._togglePageSizeButtons({type: null});
-    }
-    if (this.options.hideControlContainer) {
-      this._toggleControls();    
-    }
-    if (this.options.hideClasses) {
-      this._toggleClasses(this.options.hideClasses);
-    }
-    var sizeMode = typeof event !== 'string' ? event.target.className : event;
-    if (sizeMode === 'CurrentSize') {
-      return this._printOpertion(sizeMode);
-    }
-    this.outerContainer = this._createOuterContainer(this.mapContainer)
-    if (this.originalState.widthWasAuto) {
-      this.outerContainer.style.width = this.originalState.mapWidth
-    }
-    this._createImagePlaceholder(sizeMode)
   },
 
   _createImagePlaceholder: function (sizeMode) {
