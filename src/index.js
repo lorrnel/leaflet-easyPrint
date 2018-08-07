@@ -90,6 +90,9 @@ L.Control.EasyPrint = L.Control.extend({
     }
 
     if (shouldContinue) {
+      if (plugin.options.onStart)
+        plugin.options.onStart();
+
       if (filename) {
         this.options.filename = filename
       }
@@ -198,8 +201,6 @@ L.Control.EasyPrint = L.Control.extend({
     if (this.originalState.widthWasAuto && sizemode === 'CurrentSize' || this.originalState.widthWasPercentage && sizemode === 'CurrentSize') {
       widthForExport = this.originalState.mapWidth
     }
-    if (plugin.options.onStart)
-      plugin.options.onStart();
 
     domtoimage.toPng(plugin.mapContainer, {
         width: parseInt(widthForExport),
