@@ -21,6 +21,8 @@ L.Control.EasyPrint = L.Control.extend({
       A4Portrait: 'A4 Portrait'
     },
     handleImage: null,
+    onStart: null,
+    onFinish: null,
     shouldImageSnap: true,
   },
 
@@ -196,12 +198,19 @@ L.Control.EasyPrint = L.Control.extend({
     if (this.originalState.widthWasAuto && sizemode === 'CurrentSize' || this.originalState.widthWasPercentage && sizemode === 'CurrentSize') {
       widthForExport = this.originalState.mapWidth
     }
+    if (plugin.options.onStart)
+      plugin.options.onStart();
+
     domtoimage.toPng(plugin.mapContainer, {
         width: parseInt(widthForExport),
         height: parseInt(plugin.mapContainer.style.height.replace('px'))
       })
       .then(function (dataUrl) {
           var blob = plugin._dataURItoBlob(dataUrl);
+
+          if (plugin.options.onFinish)
+            plugin.options.onFinish();
+
           if ( typeof plugin.options.handleImage === 'function') {
             plugin.options.handleImage(blob);
           }
@@ -232,6 +241,8 @@ L.Control.EasyPrint = L.Control.extend({
       })
       .catch(function (error) {
           console.error('Print operation failed', error);
+          if (plugin.options.onFinish)
+            plugin.options.onFinish(error);
       }); 
   },
 
