@@ -90,8 +90,8 @@ L.Control.EasyPrint = L.Control.extend({
     }
 
     if (shouldContinue) {
-      if (plugin.options.onStart)
-        plugin.options.onStart();
+      if (this.options.onStart)
+        this.options.onStart();
 
       if (filename) {
         this.options.filename = filename
