@@ -24,6 +24,7 @@ L.Control.EasyPrint = L.Control.extend({
     onStart: null,
     onFinish: null,
     shouldImageSnap: true,
+    quality: 1,
   },
 
   onAdd: function () { 
@@ -204,7 +205,8 @@ L.Control.EasyPrint = L.Control.extend({
 
     domtoimage.toPng(plugin.mapContainer, {
         width: parseInt(widthForExport),
-        height: parseInt(plugin.mapContainer.style.height.replace('px'))
+        height: parseInt(plugin.mapContainer.style.height.replace('px')),
+        quality: plugin.options.quality,
       })
       .then(function (dataUrl) {
           var blob = plugin._dataURItoBlob(dataUrl);
