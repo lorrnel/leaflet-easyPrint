@@ -399,7 +399,7 @@ L.Control.EasyPrint = L.Control.extend({
     .easyPrintHolder{
       margin-top:-31px;
       margin-bottom: -5px;
-      margin-left: 30px;
+      margin-left: -30px;
       padding-left: 0px;
       display: none;
     }
