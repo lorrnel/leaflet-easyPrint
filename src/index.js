@@ -27,8 +27,7 @@ L.Control.EasyPrint = L.Control.extend({
     quality: 1
   },
 
-  onAdd: function() {
-    this.mapContainer = this._map.getContainer();
+  setSizeModes: function() {
     this.options.sizeModes = this.options.sizeModes.map(function(sizeMode) {
       if (sizeMode === "CurrentSize") {
         return {
@@ -54,6 +53,11 @@ L.Control.EasyPrint = L.Control.extend({
       }
       return sizeMode;
     }, this);
+  },
+
+  onAdd: function() {
+    this.mapContainer = this._map.getContainer();
+    this.setSizeModes();
 
     var container = L.DomUtil.create(
       "div",
@@ -93,6 +97,13 @@ L.Control.EasyPrint = L.Control.extend({
       L.DomEvent.disableClickPropagation(container);
     }
     return container;
+  },
+
+  setOptions: function(options) {
+    for (const key in options) {
+      this.options[key] = options[key];
+    }
+    this.setSizeModes();
   },
 
   printMap: function(event, filename) {
