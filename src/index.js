@@ -506,9 +506,10 @@ L.Control.EasyPrint = L.Control.extend({
   },
   _toggleClasses: function(classes, show) {
     classes.forEach(function(className) {
-      var div = document.getElementsByClassName(className)[0];
-      if (show) return (div.style.display = "block");
-      div.style.display = "none";
+      document.getElementsByClassName(className).forEach(div=>{
+        if (show) return (div.style.display = "block");
+        div.style.display = "none";
+      });
     });
   },
 
