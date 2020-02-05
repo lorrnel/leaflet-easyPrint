@@ -232,7 +232,7 @@ L.Control.EasyPrint = L.Control.extend({
             widthForExport = this.originalState.mapWidth;
         }
 
-        domtoimage
+        return domtoimage
             .toPng(plugin.mapContainer, {
                 width: parseInt(widthForExport),
                 height: parseInt(plugin.mapContainer.style.height.replace("px")),
@@ -240,11 +240,11 @@ L.Control.EasyPrint = L.Control.extend({
             })
             .then(function (dataUrl) {
                 var blob = plugin._dataURItoBlob(dataUrl);
-
+                let res = blob;
                 if (plugin.options.onFinish) plugin.options.onFinish();
 
                 if (typeof plugin.options.handleImage === "function") {
-                    plugin.options.handleImage(blob);
+                     res = plugin.options.handleImage(blob);
                 } else if (plugin.options.exportOnly) {
                     fileSaver.saveAs(blob, plugin.options.filename + ".png");
                 } else {
@@ -273,6 +273,7 @@ L.Control.EasyPrint = L.Control.extend({
                     plugin._map.setZoom(plugin.originalState.zoom);
                 }
                 plugin._map.fire("easyPrint-finished");
+                return res;
             })
             .catch(function (error) {
                 console.error("Print operation failed", error);
